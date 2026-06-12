@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\Build.props" />
+  <PropertyGroup>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>ODT-Softcore</AssemblyName>
+    <OutputType>Library</OutputType>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <DeployRoot Condition="'$(DeployRoot)' == ''">C:\SPT4\SPT</DeployRoot>
+    <ModDeployDir>$(DeployRoot)\user\mods\odt-softcore</ModDeployDir>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Libraries\SPTarkov.Common\SPTarkov.Common.csproj" />
+    <ProjectReference Include="..\..\Libraries\SPTarkov.DI\SPTarkov.DI.csproj" />
+    <ProjectReference Include="..\..\Libraries\SPTarkov.Reflection\SPTarkov.Reflection.csproj" />
+    <ProjectReference Include="..\..\Libraries\SPTarkov.Server.Assets\SPTarkov.Server.Assets.csproj" />
+    <ProjectReference Include="..\..\Libraries\SPTarkov.Server.Core\SPTarkov.Server.Core.csproj" />
+  </ItemGroup>
+  <Target Name="CopyToServer" AfterTargets="Build">
+    <ItemGroup>
+      <OutputDLL Include="$(TargetPath)" />
+      <Resources Include="$(ProjectDir)Resources\**\*.*" />
+      <ConfigFiles Include="$(ProjectDir)config\**\*.*" />
+    </ItemGroup>
+    <Message Text="Deploying $(TargetFileName) to $(ModDeployDir)" Importance="high" />
+    <MakeDir Directories="$(ModDeployDir)" Condition="!Exists('$(ModDeployDir)')" />
+    <MakeDir Directories="$(ModDeployDir)\Resources" Condition="Exists('$(ProjectDir)Resources')" />
+    <MakeDir Directories="$(ModDeployDir)\config" Condition="Exists('$(ProjectDir)config')" />
+    <Copy SourceFiles="@(OutputDLL)" DestinationFolder="$(ModDeployDir)" />
+    <Copy SourceFiles="@(Resources)" DestinationFolder="$(ModDeployDir)\Resources\%(RecursiveDir)" SkipUnchangedFiles="true" Condition="Exists('$(ProjectDir)Resources')" />
+    <Copy SourceFiles="@(ConfigFiles)" DestinationFolder="$(ModDeployDir)\config\%(RecursiveDir)" SkipUnchangedFiles="true" Condition="Exists('$(ProjectDir)config')" />
+  </Target>
+</Project>
